@@ -125,11 +125,6 @@ config_node()
     systemctl stop firewalld
     systemctl disable firewalld
 
-    # Disable SELinux
-    cp /etc/selinux/config /etc/selinux/config.backup
-    sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
-    setenforce 0
-
     cat /etc/os-release | grep "^NAME=" | grep "CentOS"
     if [ $? -eq 0 ]; then
       yum install -y centos-release-gluster --nogpgcheck
