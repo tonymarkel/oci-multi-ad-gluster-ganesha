@@ -213,7 +213,8 @@ variables:
     type: integer
     default: 16
     minimum: 4
-    maximum: 128client_node_count:
+    maximum: 128
+  client_node_count:
     title: "Number of clients"
     description: "Number of client instances."
     type: integer
