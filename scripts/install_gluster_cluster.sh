@@ -271,13 +271,13 @@ ganesha_create_ha_config()
     nodes="${server_hostname_prefix}${i},"
   done
   nodes=${nodes::-1}
-  echo '# Ganesha NFS HA Configuration' > /etc/ganesha/ganesha-ha.conf
-  echo 'ha_name=""${server_hostname_prefix}HA"' >> /etc/ganesha/ganesha-ha.conf
-  echo 'ha_cluster_nodes="${nodes}"' >> /etc/ganesha/ganesha-ha.conf
+  echo "# Ganesha NFS HA Configuration" > /etc/ganesha/ganesha-ha.conf
+  echo "ha_name=\"${server_hostname_prefix}HA\"" >> /etc/ganesha/ganesha-ha.conf
+  echo "ha_cluster_nodes=\"${nodes}\"" >> /etc/ganesha/ganesha-ha.conf
   for i in `seq 1 $server_node_count`;
   do
     vip=`dig +short ${server_hostname_prefix}${i}.${storage_subnet_domain_name}`
-    echo 'VIP_Server${i}="${vip}"' >> /etc/ganesha/ganesha-ha.conf
+    echo "VIP_Server${i}=\"${vip}\"" >> /etc/ganesha/ganesha-ha.conf
   done
   # Enable Gluster HA
   gluster nfs-ganesha enable
