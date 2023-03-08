@@ -26,7 +26,6 @@ groupings:
     variables:
     - vpc_cidr
     - ssh_public_key
-    - ad_name
   - title: "Bastion Instance Configuration"
     visible: true
     variables:
@@ -79,39 +78,15 @@ variables:
     description: "Public key for all compute instances."
     type: string
     required: true
-  ad_name:
-    title: "Availability Domains"
-    description: "Number of Availability Domains where filesystem is deployed. Not all regions have multiple availability domains."
-    type: integer
-    default: 1
-    minimum: 1
-    maximum: 3
-    dependsOn:
-      compartmentId: ${compartment_ocid}
-    required: true
   bastion_shape:
     title: "Bastion Compute Shape"
     description: "Shape for bastion instances."
     type: oci:core:instanceshape:name
-    default: "VM.Standard.E4.Flex"
+    default: "VM.Standard2.2"
     required: true
     dependsOn:
       compartmentId: ${compartment_ocid}
       imageId: ${mp_listing_resource_id}
-  bastion_ocpus:
-    title: "Number of OCPUS"
-    description: "Number of OCPUS for the Bastion"
-    type: integer
-    default: 1
-    minimum: 1
-    maximum: 4
-  bastion_memory:
-    title: "Bastion Memory"
-    description: "Memory Required for the Bastion host"
-    type: integer
-    default: 8
-    minimum: 4
-    maximum: 16
   bastion_node_count:
     title: "Number of bastions"
     description: "Number of bastion instances."
@@ -127,25 +102,11 @@ variables:
     title: "Gluster Server Compute Shape"
     description: "Shape for gluster server instances."
     type: oci:core:instanceshape:name
-    default: "VM.Standard.E4.Flex"
+    default: "VM.Standard2.2"
     required: true
     dependsOn:
       compartmentId: ${compartment_ocid}
       imageId: ${mp_listing_resource_id}
-  gluster_server_ocpus:
-    title: "Number of OCPUS"
-    description: "Number of OCPUS for the Gluster Server"
-    type: integer
-    default: 1
-    minimum: 1
-    maximum: 16
-  gluster_server_memory:
-    title: "Bastion Memory"
-    description: "Memory Required for the Gluster Server"
-    type: integer
-    default: 16
-    minimum: 4
-    maximum: 128
   gluster_server_node_count:
     title: "Number of Gluster Servers"
     description: "Number of gluster server instances."
@@ -195,25 +156,11 @@ variables:
     title: "Client Compute Shape"
     description: "Shape for client instances."
     type: oci:core:instanceshape:name
-    default: "VM.Standard.E4.Flex"
+    default: "VM.Standard2.2"
     required: false
     dependsOn:
       compartmentId: ${compartment_ocid}
 #      imageId: ${mp_listing_resource_id}
-  client_node_ocpus:
-    title: "Number of OCPUS"
-    description: "Number of OCPUS for the Gluster Server"
-    type: integer
-    default: 1
-    minimum: 1
-    maximum: 16
-  client_node_memory:
-    title: "Bastion Memory"
-    description: "Memory Required for the Gluster Server"
-    type: integer
-    default: 16
-    minimum: 4
-    maximum: 128
   client_node_count:
     title: "Number of clients"
     description: "Number of client instances."
