@@ -14,6 +14,10 @@ resource "oci_core_instance" "gluster_server" {
   display_name        = "${var.gluster_server_hostname_prefix}${format("%01d", count.index+1)}"
   hostname_label      = "${var.gluster_server_hostname_prefix}${format("%01d", count.index+1)}"
   shape               = var.gluster_server_shape
+  shape_config {
+    memory_in_gbs             = var.gluster_server_memory
+    ocpus                     = var.gluster_server_ocpus
+  }
   subnet_id           = "${oci_core_subnet.private.*.id[0]}"
 
   source_details {
@@ -72,6 +76,10 @@ resource "oci_core_instance" "client_node" {
   display_name        = "${var.client_node_hostname_prefix}${format("%01d", count.index+1)}"
   hostname_label      = "${var.client_node_hostname_prefix}${format("%01d", count.index+1)}"
   shape               = var.client_node_shape
+  shape_config {
+    memory_in_gbs             = var.client_node_memory
+    ocpus                     = var.client_node_ocpus
+  }
   subnet_id           = (local.server_dual_nics ? oci_core_subnet.privateb.*.id[0] : oci_core_subnet.privateb.*.id[0])
 
   source_details {
@@ -123,6 +131,10 @@ resource "oci_core_instance" "bastion" {
   compartment_id      = "${var.compartment_ocid}"
   display_name        = "${var.bastion_hostname_prefix}${format("%01d", count.index+1)}"
   shape               = var.bastion_shape
+  shape_config {
+    memory_in_gbs             = var.bastion_memory
+    ocpus                     = var.bastion_ocpus
+  }
   hostname_label      = "${var.bastion_hostname_prefix}${format("%01d", count.index+1)}"
 
   create_vnic_details {

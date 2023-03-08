@@ -16,11 +16,15 @@ variable "images" {
 }
 
 
-variable bastion_shape { default = "VM.Standard2.2" }
+variable bastion_shape { default = "VM.Standard.E4.Flex" }
+variable bastion_ocpus { default = 1 }
+variable bastion_memory { default = 8 }
 variable bastion_node_count { default = 1 }
 variable bastion_hostname_prefix { default = "bastion-" }
 
-variable gluster_server_shape { default = "BM.Standard2.52" }
+variable gluster_server_shape { default = "VM.Standard.E4.Flex" }
+variable gluster_server_ocpus { default = 1 }
+variable gluster_server_memory { default = 16 }
 variable gluster_server_node_count { default = 3 }
 variable gluster_server_disk_count { default = 8 }
 variable gluster_server_disk_size { default = 4000 }
@@ -33,8 +37,10 @@ variable gluster_server_hostname_prefix { default = "g-server-" }
 
 
 # Client nodes variables
-variable client_node_shape { default = "VM.Standard2.24" }
-variable client_node_count { default = 9 }
+variable client_node_shape { default = "VM.Standard.E4.Flex" }
+variable client_node_ocpus { default = 1 }
+variable client_node_memory { default = 16 }
+variable client_node_count { default = 1 }
 variable client_node_hostname_prefix { default = "g-compute-" }
 
 
