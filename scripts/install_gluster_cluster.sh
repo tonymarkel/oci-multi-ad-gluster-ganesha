@@ -141,6 +141,11 @@ config_node()
     yum install -y glusterfs-ganesha
     yum install -y nfs-ganesha
     yum install -y nfs-ganesha-gluster
+    yum install -y corosync
+    yum install -y pacemaker
+    yum install -y pcs 
+    yum install -y oraclelinux-developer-release-el7
+    yum install -y python36-oci-cli
 
     touch /var/log/CONFIG_COMPLETE
 }
@@ -263,7 +268,7 @@ ganesha_create_ha_config()
   nodes=""
   for i in `seq 1 $server_node_count`;
   do
-    nodes="${server_hostname_prefix}${i},"
+    nodes="${server_hostname_prefix}${i},
   done
   nodes=${nodes::-1}
   echo "# Ganesha NFS HA Configuration" > /etc/ganesha/ganesha-ha.conf
@@ -292,8 +297,6 @@ gluster_probe_peers()
         gluster peer status
     fi
 }
-
-
 
 create_gluster_volumes()
 {
@@ -350,6 +353,7 @@ systemctl start glusterd.service
 systemcrl enable
 gluster_probe_peers
 create_gluster_volumes
+sleep 60
 ganesha_create_ha_config
 systemctl enable nfs-ganesha
 systemctl start nfs-ganesha
