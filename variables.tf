@@ -4,6 +4,7 @@
 ###
 
 variable "vpc_cidr" { default = "10.0.0.0/16" }
+variable "cluster_ip" { default = "10.0.0.252"}
 
 # Oracle-Linux-7.6-2019.05.28-0
 # https://docs.cloud.oracle.com/iaas/images/image/6180a2cb-be6c-4c78-a69f-38f2714e6b3d/
@@ -14,7 +15,6 @@ variable "images" {
     us-phoenix-1   = "ocid1.image.oc1.phx.aaaaaaaa2wadtmv6j6zboncfobau7fracahvweue6dqipmcd5yj6s54f3wpq"
   }
 }
-
 
 variable bastion_shape { default = "VM.Standard2.2" }
 variable bastion_node_count { default = 1 }
@@ -28,17 +28,12 @@ variable gluster_server_disk_size { default = 4000 }
 variable gluster_server_num_of_disks_in_brick { default = 1 }
 # Block volume elastic performance tier.  The number of volume performance units (VPUs) that will be applied to this volume per GB, representing the Block Volume service's elastic performance options. See https://docs.cloud.oracle.com/en-us/iaas/Content/Block/Concepts/blockvolumeelasticperformance.htm for more information.  Allowed values are 0, 10, and 20.  Recommended value is 10 for balanced performance and 20 to receive higher performance (IO throughput and IOPS) per GB.
 variable gluster_server_disk_vpus_per_gb { default = "20" }
-variable gluster_server_hostname_prefix { default = "g-server-" }
-
-
+variable gluster_server_hostname_prefix { default = "gluster-server-" }
 
 # Client nodes variables
 variable client_node_shape { default = "VM.Standard2.2" }
 variable client_node_count { default = 1 }
-variable client_node_hostname_prefix { default = "g-compute-" }
-
-
-
+variable client_node_hostname_prefix { default = "gluster-compute-" }
 
 /*
   Gluster FS related variables
@@ -48,12 +43,12 @@ variable gluster_version { default = "5.9" }
 # valid values are Distributed, Dispersed , DistributedDispersed, DistributedReplicated, Replicated
 variable gluster_volume_types { default = "DistributedReplicated" }
 # replica field used only when VolumeTypes is "Replicated" or "DistributedReplicated". Otherwise assume no replication of data (replica=1 means no replication, only 1 copy of data in filesystem.)
-variable gluster_replica { default = 1 }
+variable gluster_replica { default = 3 }
 # Has to be in Kilobytes only. Mention only numerical value, example 256, not 256K
 variable gluster_block_size { default = "128" }
 variable gluster_mount_point { default = "/glusterfs" }
 # To be supported in future
-variable gluster_high_availability { default = false }
+variable gluster_high_availability { default = true }
 
 
 ##################################################
@@ -65,8 +60,8 @@ variable "scripts_directory" { default = "scripts" }
 variable "gluster_ol_repo_mapping" {
   type = map(string)
   default = {
-    "5.9" = "http://yum.oracle.com/repo/OracleLinux/OL7/gluster5/x86_64"
-    "3.12" = "http://yum.oracle.com/repo/OracleLinux/OL7/gluster312/x86_64"
+    "5.9" = "https://yum.oracle.com/repo/OracleLinux/OL7/gluster6/x86_64"
+    "3.12" = "https://yum.oracle.com/repo/OracleLinux/OL7/gluster312/x86_64"
   }
 }
 
@@ -127,8 +122,6 @@ variable "ssh_public_key" {}
 */
 variable "ssh_user" { default = "opc" }
 
-
-
 /*
 See https://docs.us-phoenix-1.oraclecloud.com/images/ or https://docs.cloud.oracle.com/iaas/images/
 Oracle-provided image "CentOS-7-2019.08.26-0"
@@ -158,7 +151,7 @@ locals {
   storage_subnet_domain_name=(local.server_dual_nics ? "${oci_core_subnet.private[0].dns_label}.${oci_core_virtual_network.gluster.dns_label}.oraclevcn.com" : "${oci_core_subnet.private[0].dns_label}.${oci_core_virtual_network.gluster.dns_label}.oraclevcn.com" )
   filesystem_subnet_domain_name=(local.server_dual_nics ? "${oci_core_subnet.privateb[0].dns_label}.${oci_core_virtual_network.gluster.dns_label}.oraclevcn.com" : "${oci_core_subnet.privateb[0].dns_label}.${oci_core_virtual_network.gluster.dns_label}.oraclevcn.com" )
   vcn_domain_name="${oci_core_virtual_network.gluster.dns_label}.oraclevcn.com"
-  server_filesystem_vnic_hostname_prefix = "${var.gluster_server_hostname_prefix}fs-vnic-"
+  server_filesystem_vnic_hostname_prefix = "${var.gluster_}fs-vnic-"
 
   # If ad_number is non-negative use it for AD lookup, else use ad_name.
   # Allows for use of ad_number in TF deploys, and ad_name in ORM.
@@ -166,8 +159,6 @@ locals {
   ad = "${var.ad_number >= 0 ? lookup(data.oci_identity_availability_domains.availability_domains.availability_domains[max(0,var.ad_number)],"name") : var.ad_name}"
 
 }
-
-
 
 # Not used for normal terraform apply, added for ORM deployments.
 variable "ad_name" {
@@ -195,5 +186,5 @@ variable "mp_listing_resource_version" {
 }
 
 variable "use_marketplace_image" {
-  default = true
+  default = false
 }

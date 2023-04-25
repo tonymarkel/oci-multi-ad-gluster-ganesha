@@ -130,22 +130,24 @@ config_node()
       yum install -y centos-release-gluster --nogpgcheck
       yum install glusterfs-server -y
       yum install -y samba git nvme-cli
+      # Install the OCI CLI to use IPADDR2 for the floating VIP
+      bash -c "$(curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh)"
     else
       # Enable latest Oracle Linux Gluster release
       yum-config-manager --add-repo $gluster_yum_release
       yum-config-manager --add-repo 
       yum install -y glusterfs-server samba git nvme-cli
+      # Install the OCI CLI to use IPADDR2 for the floating VIP
+      yum install -y oraclelinux-developer-release-el7
+      yum install -y python36-oci-cli
     fi
     
     # Enable ganesha
-    yum install -y glusterfs-ganesha
     yum install -y nfs-ganesha
     yum install -y nfs-ganesha-gluster
     yum install -y corosync
     yum install -y pacemaker
-    yum install -y pcs 
-    yum install -y oraclelinux-developer-release-el7
-    yum install -y python36-oci-cli
+    yum install -y pcs
 
     touch /var/log/CONFIG_COMPLETE
 }
@@ -262,22 +264,30 @@ create_bricks()
 ganesha_create_ha_config()
 {
   # Name of the HA cluster created. must be unique within the subnet
-  
-  # The subset of nodes of the Gluster Trusted Pool that form the ganesha HA cluster.
-  # Hostname is specified.
+  ha_name="${server_hostname_prefix}HA"
+  # Build Node String for use later
   nodes=""
   for i in `seq 1 $server_node_count`;
   do
-    nodes="${server_hostname_prefix}${i},
+    nodes="${server_hostname_prefix}${i},"
   done
   nodes=${nodes::-1}
-  echo "# Ganesha NFS HA Configuration" > /etc/ganesha/ganesha-ha.conf
-  echo "ha_name=\"${server_hostname_prefix}HA\"" >> /etc/ganesha/ganesha-ha.conf
-  echo "ha_cluster_nodes=\"${nodes}\"" >> /etc/ganesha/ganesha-ha.conf
+  timestamp=$(date +"%Y-%m-%d_%H-%M-%S"))
+  # Build /etc/hosts configuration (additive)
+  # Make a backup
+  cp /etc/hosts /tmp/hosts.backup.${timestamp}
+  # Remove previous entries for the cluster ip
+  sed -i "/${ha_name}.${storage_subnet_domain_name}/d" /etc/hosts
+  # Add the cluster host record
+  echo "${cluster_ip} ${ha_name} ${ha_name}.${storage_subnet_domain_name}" >> /etc/hosts
   for i in `seq 1 $server_node_count`;
   do
+    # Delete matching lines for the server to enable updates
+    sed -i "/${server_hostname_prefix}${i}/d" /etc/hosts
+    # Get the IP address for a server
     vip=`dig +short ${server_hostname_prefix}${i}.${storage_subnet_domain_name}`
-    echo "VIP_Server${i}=\"${vip}\"" >> /etc/ganesha/ganesha-ha.conf
+    # Make an /etc/hosts entry with the ip, short host name and long host name
+    echo "${vip} ${server_hostname_prefix}${i} ${server_hostname_prefix}.${storage_subnet_domain_name}" >> /etc/hosts
   done
   # Enable Gluster HA
   gluster nfs-ganesha enable

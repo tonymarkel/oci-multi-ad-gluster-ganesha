@@ -51,7 +51,8 @@ resource "oci_core_instance" "gluster_server" {
         "server_filesystem_vnic_hostname_prefix=\"${local.server_filesystem_vnic_hostname_prefix}\"",
         "server_dual_nics=\"${local.server_dual_nics}\"",
         file("${var.scripts_directory}/firewall.sh"),
-        file("${var.scripts_directory}/install_gluster_cluster.sh")
+        file("${var.scripts_directory}/install_gluster_cluster.sh"),
+        file("${var.scripts_directory}/install_ganesha_cluster.sh")
       )))}"
     }
 
